@@ -23,13 +23,8 @@ async def create_account(user_schema: UserSchema, session: Session = Depends(db_
         bytes_password = user_schema.password.encode("utf-8")
         salt = bcrypt.gensalt()
         encrypted_password = bcrypt.hashpw(password=bytes_password, salt=salt)
-        try:
-            print("Entrou try")
-            new_user = User(user_schema.name, user_schema.email, encrypted_password, user_schema.active)
-        except ValidationError as e:
-            return {
-                "errors": [err.detail.sg for err in e]
-            }
+
+        new_user = User(user_schema.name, user_schema.email, encrypted_password, user_schema.active)
 
         session.add(new_user)
         session.commit()
