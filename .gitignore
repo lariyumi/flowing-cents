@@ -1,3 +1,6 @@
 *.txt
 database/
 .venv/
+alembic/
+alembic.ini
+__pycache__/
