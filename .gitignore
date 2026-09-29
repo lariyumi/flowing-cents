@@ -1,0 +1,3 @@
+*.txt
+database/
+.venv/
