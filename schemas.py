@@ -9,3 +9,10 @@ class UserSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+class LoginSchema(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=6)
+
+    class Config:
+        from_attributes = True
