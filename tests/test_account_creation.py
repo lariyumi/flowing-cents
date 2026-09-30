@@ -1,5 +1,4 @@
 from fastapi.testclient import TestClient
-from pydantic import ValidationError
 
 import sys
 import os
@@ -10,7 +9,7 @@ from main import app
 
 client = TestClient(app)
 
-def test_successfull_account_creation(client):
+def test_successful_account_creation(client):
     valid_user = {
         "name": "TestName",
         "email": "testemail@gmail.com",
