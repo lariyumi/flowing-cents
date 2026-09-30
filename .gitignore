@@ -4,3 +4,7 @@ database/
 alembic/
 alembic.ini
 __pycache__/
+.python-version
+src/
+pyproject.toml
+uv.lock

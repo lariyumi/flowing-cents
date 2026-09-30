@@ -1,0 +1,2 @@
+# Flowing Cents
+This repository contains a FastAPI REST API for personal financial management, enabling income and expense tracking across accounts, tag-based categorization, and monthly spending limits with customized alerts.
