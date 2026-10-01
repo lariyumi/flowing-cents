@@ -9,21 +9,14 @@ from main import app
 
 client = TestClient(app)
 
-def test_successful_login(client: TestClient):
-    create_user = {
-        "name": "TestName",
-        "email": "testemail@gmail.com",
-        "password": "TestPassword"
-    }
+def test_successful_login(client: TestClient, create_user, login_request):
+    user = create_user()
 
-    response = client.post("/user/create-account", json=create_user)
+    client.post("/user/create-account", json=user)
 
-    valid_login = {
-        "email": "testemail@gmail.com",
-        "password": "TestPassword"
-    }
+    login = login_request()
 
-    response = client.post("/user/login", json=valid_login)
+    response = client.post("/user/login", json=login)
 
     assert response.status_code == 200
 
@@ -36,19 +29,26 @@ def test_successful_login(client: TestClient):
     assert len(data["refresh_token"]) > 0
     assert data.get("token_type") == "Bearer"
 
-def test_error_wrong_email(client: TestClient):
-    create_user = {
-        "name": "TestName",
-        "email": "testemail@gmail.com",
-        "password": "TestPassword"
+def test_error_wrong_email(client: TestClient, create_user, login_request):
+    user = create_user()
+    
+    client.post("/user/create-account", json=user)
+    
+    login = login_request(email="estemail@gmail.com")
+    
+    response = client.post("/user/login", json=login)
+
+    assert response.status_code == 400
+    assert response.json() == {
+        "detail": "User not found or invalid credentials"
     }
 
-    response = client.post("/user/create-account", json=create_user)
+def test_error_wrong_password(client: TestClient, create_user, login_request):
+    user = create_user()
 
-    login = {
-        "email": "estemail@gmail.com",
-        "password": "TestPassword"
-    }
+    client.post("/user/create-account", json=user)
+
+    login = login_request(password="TestPasswor")
 
     response = client.post("/user/login", json=login)
 
@@ -57,32 +57,8 @@ def test_error_wrong_email(client: TestClient):
         "detail": "User not found or invalid credentials"
     }
 
-def test_error_wrong_password(client: TestClient):
-    create_user = {
-        "name": "TestName",
-        "email": "testemail@gmail.com",
-        "password": "TestPassword"
-    }
-
-    response = client.post("/user/create-account", json=create_user)
-
-    login = {
-        "email": "testemail@gmail.com",
-        "password": "TestPasswor"
-    }
-
-    response = client.post("/user/login", json=login)
-
-    assert response.status_code == 400
-    assert response.json() == {
-        "detail": "User not found or invalid credentials"
-    }
-
-def test_error_no_email(client: TestClient):
-    login = {
-        "email": "",
-        "password": "TestPassword"
-    }
+def test_error_no_email(client: TestClient, login_request):
+    login = login_request(email="")
 
     response = client.post("/user/login", json=login)
 
@@ -93,11 +69,8 @@ def test_error_no_email(client: TestClient):
     assert errors[0]["loc"] == ["body", "email"]
     assert "not a valid email address" in errors[0]["msg"]
 
-def test_error_no_password(client: TestClient):
-    login = {
-        "email": "testemail@gmail.com",
-        "password": ""
-    }
+def test_error_no_password(client: TestClient, login_request):
+    login = login_request(password="")
 
     response = client.post("/user/login", json=login)
 

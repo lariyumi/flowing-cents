@@ -9,8 +9,12 @@ from main import app
 
 client = TestClient(app)
 
-def test_successful_request(client: TestClient, auth_headers: dict):
-    response = client.get("/account", headers=auth_headers)
+def test_successful_request(client: TestClient, auth_headers, create_user):
+    user = create_user()
+
+    client.post("/user/create-account", json=user)
+
+    response = client.get("/account", headers=auth_headers())
 
     assert response.status_code == 200
     assert "accounts" in response.json()
