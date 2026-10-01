@@ -12,6 +12,14 @@ from models import User, Account
 
 account_router = APIRouter(prefix="/account", tags=["account"], dependencies=[Depends(validate_token)])
 
+@account_router.get("/")
+async def list_accounts(session: Session = Depends(db_session), user: User = Depends(validate_token)):
+    accounts = session.query(Account).filter(Account.user == user.id).all()
+
+    return {
+        "accounts": accounts
+    }
+
 @account_router.post("/create-account", status_code=201)
 async def add_account(account_schema: AccountSchema, session: Session = Depends(db_session), user: User = Depends(validate_token)):
     if account_schema.user != user.id:
