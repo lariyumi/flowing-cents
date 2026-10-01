@@ -35,7 +35,7 @@ def create_token(user_id: int, token_duration=timedelta(minutes=ACCESS_TOKEN_EXP
 
 @user_router.post("/create-account", status_code=201)
 async def create_account(user_schema: UserSchema, session: Session = Depends(db_session)):
-    user = session.query(User).filter(User.email == user_schema.email).first()
+    user = session.query(User).filter(User.email == user_schema.email, User.active).first()
 
     if user:
         raise HTTPException(status_code=400, detail="Email already used by an existing user")
