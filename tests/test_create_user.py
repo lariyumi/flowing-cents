@@ -9,31 +9,20 @@ from main import app
 
 client = TestClient(app)
 
-def test_successful_user_creation(client: TestClient):
-    valid_user = {
-        "name": "TestName",
-        "email": "testemail@gmail.com",
-        "password": "TestPassword",
-        "active": True
-    }
+def test_successful_user_creation(client: TestClient, create_user):
+    user = create_user()
 
-    response = client.post("/user/create-account", 
-                           json=valid_user)
+    response = client.post("/user/create-account", json=user)
 
     assert response.status_code == 201
     assert response.json() == {
         "message": f"User successfully registered"
     }
 
-def test_error_no_name(client: TestClient):
-    invalid_user = {
-        "name": "",
-        "email": "testemail@gmail.com",
-        "password": "TestPassword",
-        "active": True
-    }
+def test_error_no_name(client: TestClient, create_user):
+    user = create_user(name="")
 
-    response = client.post("/user/create-account", json=invalid_user)
+    response = client.post("/user/create-account", json=user)
 
     assert response.status_code == 422
 
@@ -42,15 +31,10 @@ def test_error_no_name(client: TestClient):
     assert errors[0]["loc"] == ["body", "name"]
     assert "at least 2 characters" in errors[0]["msg"]
 
-def test_error_no_email(client: TestClient):
-    invalid_user = {
-        "name": "TestName",
-        "email": "",
-        "password": "TestPassword",
-        "active": True
-    }
+def test_error_no_email(client: TestClient, create_user):
+    user = create_user(email="")
 
-    response = client.post("/user/create-account", json=invalid_user)
+    response = client.post("/user/create-account", json=user)
 
     assert response.status_code == 422
 
@@ -59,16 +43,10 @@ def test_error_no_email(client: TestClient):
     assert errors[0]["loc"] == ["body", "email"]
     assert "not a valid email address" in errors[0]["msg"]
 
-def test_error_existing_email(client: TestClient):
-    user = {
-        "name": "TestName",
-        "email": "testemail@gmail.com",
-        "password": "TestPassword",
-        "active": True
-    }
+def test_error_existing_email(client: TestClient, create_user):
+    user = create_user()
 
-    response = client.post("/user/create-account", json=user)
-
+    client.post("/user/create-account", json=user)
     response = client.post("/user/create-account", json=user)
 
     assert response.status_code == 400
@@ -76,13 +54,8 @@ def test_error_existing_email(client: TestClient):
     errors = response.json()["detail"]
     assert "Email already used" in errors
 
-def test_error_no_password(client: TestClient):
-    user = {
-        "name": "TestName",
-        "email": "testemail@gmail.com",
-        "password": "",
-        "active": True
-    }
+def test_error_no_password(client: TestClient, create_user):
+    user = create_user(password="")
 
     response = client.post("/user/create-account", json=user)
 

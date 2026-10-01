@@ -47,18 +47,46 @@ def client(session: Session):
     app.dependency_overrides.clear()
 
 @pytest.fixture(scope="function")
-def auth_headers(session: Session, client: TestClient):
-    user = {
-        "name": "TestName",
-        "email": "testemail@gmail.com",
-        "password": "TestPassword",
-        "active": True
-    }
-    
-    response = client.post("/user/create-account", json=user)
-    login_data = {"username": "testemail@gmail.com", "password": "TestPassword"}
-    response = client.post("/user/login/auth-form", data=login_data)
-    token = response.json()["access_token"]
-    
-    # 2. Return the header dictionary
-    return {"Authorization": f"Bearer {token}"}
+def create_user():
+    def _create_user(name: str = "TestName", email: str = "testemail@gmail.com", password: str = "TestPassword"): 
+        user = {
+            "name": name,
+            "email": email,
+            "password": password
+        }
+
+        return user
+    return _create_user
+
+@pytest.fixture(scope="function")
+def login_request():
+    def _login_request(email: str = "testemail@gmail.com", password: str = "TestPassword"):
+        login = {
+            "email": email,
+            "password": password
+        }
+        
+        return login
+    return _login_request
+
+@pytest.fixture(scope="function")
+def auth_headers(client: TestClient):
+    def _auth_headers(email: str = "testemail@gmail.com", password: str = "TestPassword"):
+        login_data = {"username": email, "password": password}
+        response = client.post("/user/login/auth-form", data=login_data)
+        token = response.json()["access_token"]
+        return {"Authorization": f"Bearer {token}"}
+
+    return _auth_headers
+
+@pytest.fixture(scope="function")
+def create_account():
+    def _create_account(name_financial_institution: str = "Nubank", balance: float = 1000.00, user: int = 1):
+        account = {
+            "name_financial_institution": name_financial_institution,
+            "balance": balance,
+            "user": user
+        }
+        
+        return account 
+    return _create_account
