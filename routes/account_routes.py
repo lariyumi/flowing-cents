@@ -33,3 +33,17 @@ async def add_account(account_schema: AccountSchema, session: Session = Depends(
     return {
         "message": "Account successfully created"
     }
+
+@account_router.get("/{account_id}")
+async def show_specific_account(account_id: int, session: Session = Depends(db_session), user: User = Depends(validate_token)):
+    account = session.query(Account).filter(account_id == Account.id).first()
+
+    if not account:
+        raise HTTPException(status_code=400, detail="Requested account doesn't exist")
+    elif user.id != account.user:
+        raise HTTPException(status_code=403, detail="You don't have permission to view another user's account")
+    else:
+        return {
+            "name_financial_institution": account.name_financial_institution,
+            "balance": account.balance
+        }

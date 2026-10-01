@@ -37,14 +37,21 @@ def create_token(user_id: int, token_duration=timedelta(minutes=ACCESS_TOKEN_EXP
 async def create_account(user_schema: UserSchema, session: Session = Depends(db_session)):
     user = session.query(User).filter(User.email == user_schema.email).first()
 
-    if user:
+    if user and not user.active:
+        user.active = True
+        session.commit()
+
+        return {
+            "message": f"User successfully registered"
+        }
+    elif user:
         raise HTTPException(status_code=400, detail="Email already used by an existing user")
     else:
         bytes_password = user_schema.password.encode("utf-8")
         salt = bcrypt.gensalt()
         encrypted_password = bcrypt.hashpw(password=bytes_password, salt=salt)
 
-        new_user = User(user_schema.name, user_schema.email, encrypted_password, user_schema.active)
+        new_user = User(user_schema.name, user_schema.email, encrypted_password)
 
         session.add(new_user)
         session.commit()
@@ -57,7 +64,7 @@ async def create_account(user_schema: UserSchema, session: Session = Depends(db_
 async def login(login_schema: LoginSchema, session: Session = Depends(db_session)):
     user = authenticate_user(login_schema.email, login_schema.password, session)
 
-    if not user:
+    if not user or not user.active:
         raise HTTPException(status_code=400, detail="User not found or invalid credentials")
     else:
         access_token = create_token(user.id)
@@ -73,7 +80,7 @@ async def login(login_schema: LoginSchema, session: Session = Depends(db_session
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), session: Session = Depends(db_session)):
     user = authenticate_user(form_data.username, form_data.password, session)
 
-    if not user:
+    if not user or not user.active:
         raise HTTPException(status_code=400, detail="User not found or invalid credentials")
     else:
         access_token = create_token(user.id)
