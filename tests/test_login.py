@@ -9,7 +9,7 @@ from main import app
 
 client = TestClient(app)
 
-def test_successful_login(client):
+def test_successful_login(client: TestClient):
     create_user = {
         "name": "TestName",
         "email": "testemail@gmail.com",
@@ -37,7 +37,7 @@ def test_successful_login(client):
     assert len(data["refresh_token"]) > 0
     assert data.get("token_type") == "Bearer"
 
-def test_error_wrong_email(client):
+def test_error_wrong_email(client: TestClient):
     create_user = {
         "name": "TestName",
         "email": "testemail@gmail.com",
@@ -59,7 +59,7 @@ def test_error_wrong_email(client):
         "detail": "User not found or invalid credentials"
     }
 
-def test_error_wrong_password(client):
+def test_error_wrong_password(client: TestClient):
     create_user = {
         "name": "TestName",
         "email": "testemail@gmail.com",
@@ -81,7 +81,7 @@ def test_error_wrong_password(client):
         "detail": "User not found or invalid credentials"
     }
 
-def test_error_no_email(client):
+def test_error_no_email(client: TestClient):
     login = {
         "email": "",
         "password": "TestPassword"
@@ -96,7 +96,7 @@ def test_error_no_email(client):
     assert errors[0]["loc"] == ["body", "email"]
     assert "not a valid email address" in errors[0]["msg"]
 
-def test_error_no_password(client):
+def test_error_no_password(client: TestClient):
     login = {
         "email": "testemail@gmail.com",
         "password": ""

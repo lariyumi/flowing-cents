@@ -1,7 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import StaticPool
 
 import sys
@@ -33,7 +33,7 @@ def session():
         Base.metadata.drop_all(bind=engine)
 
 @pytest.fixture(scope="function")
-def client(session):
+def client(session: Session):
     def override_db_session():
         yield session
 
@@ -45,3 +45,20 @@ def client(session):
 
     # Clear the overrides done for test
     app.dependency_overrides.clear()
+
+@pytest.fixture(scope="function")
+def auth_headers(session: Session, client: TestClient):
+    user = {
+        "name": "TestName",
+        "email": "testemail@gmail.com",
+        "password": "TestPassword",
+        "active": True
+    }
+    
+    response = client.post("/user/create-account", json=user)
+    login_data = {"username": "testemail@gmail.com", "password": "TestPassword"}
+    response = client.post("/user/login/auth-form", data=login_data)
+    token = response.json()["access_token"]
+    
+    # 2. Return the header dictionary
+    return {"Authorization": f"Bearer {token}"}

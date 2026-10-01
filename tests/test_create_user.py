@@ -9,7 +9,7 @@ from main import app
 
 client = TestClient(app)
 
-def test_successful_account_creation(client):
+def test_successful_user_creation(client: TestClient):
     valid_user = {
         "name": "TestName",
         "email": "testemail@gmail.com",
@@ -20,12 +20,12 @@ def test_successful_account_creation(client):
     response = client.post("/user/create-account", 
                            json=valid_user)
 
-    assert response.status_code == 200
+    assert response.status_code == 201
     assert response.json() == {
         "message": f"User successfully registered"
     }
 
-def test_error_no_name(client):
+def test_error_no_name(client: TestClient):
     invalid_user = {
         "name": "",
         "email": "testemail@gmail.com",
@@ -42,7 +42,7 @@ def test_error_no_name(client):
     assert errors[0]["loc"] == ["body", "name"]
     assert "at least 2 characters" in errors[0]["msg"]
 
-def test_error_no_email(client):
+def test_error_no_email(client: TestClient):
     invalid_user = {
         "name": "TestName",
         "email": "",
@@ -59,7 +59,7 @@ def test_error_no_email(client):
     assert errors[0]["loc"] == ["body", "email"]
     assert "not a valid email address" in errors[0]["msg"]
 
-def test_error_existing_email(client):
+def test_error_existing_email(client: TestClient):
     user = {
         "name": "TestName",
         "email": "testemail@gmail.com",
@@ -76,7 +76,7 @@ def test_error_existing_email(client):
     errors = response.json()["detail"]
     assert "Email already used" in errors
 
-def test_error_no_password(client):
+def test_error_no_password(client: TestClient):
     user = {
         "name": "TestName",
         "email": "testemail@gmail.com",
