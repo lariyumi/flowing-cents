@@ -1,10 +1,10 @@
 from pydantic import BaseModel, Field, EmailStr
-from typing import Optional
+from typing import Optional, Annotated
 
 class UserSchema(BaseModel):
-    name: str = Field(min_length=2)
+    name: Annotated[str, Field(min_length=2)]
     email: EmailStr
-    password: str = Field(min_length=6)
+    password: Annotated[str, Field(min_length=6)]
     active: Optional[bool]
 
     class Config:
@@ -12,7 +12,15 @@ class UserSchema(BaseModel):
 
 class LoginSchema(BaseModel):
     email: EmailStr
-    password: str = Field(min_length=6)
+    password: Annotated[str, Field(min_length=6)]
 
     class Config:
+        from_attributes = True
+
+class AccountSchema(BaseModel):
+    name_financial_institution: Annotated[str, Field(min_length=2)]
+    balance: float
+    user: Annotated[int, Field(ge=0)]
+
+    class Config: 
         from_attributes = True

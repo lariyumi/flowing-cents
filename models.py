@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, String, Integer, Float, Boolean
+from sqlalchemy import create_engine, Column, String, Integer, Float, Boolean, ForeignKey
 from sqlalchemy.orm import declarative_base
 
 db = create_engine("sqlite:///database/database.db")
@@ -19,3 +19,16 @@ class User(Base):
         self.email = email
         self.password = password
         self.active = active
+
+class Account(Base):
+    __tablename__ = "accounts"
+
+    id = Column("id", Integer, primary_key=True, autoincrement=True)
+    name_financial_institution = Column("name_financial_institution", String, nullable=False)
+    balance = Column("balance", Float, nullable=False)
+    user = Column("user", ForeignKey("users.id"))
+
+    def __init__(self, name_financial_institution, balance, user):
+        self.name_financial_institution = name_financial_institution
+        self.balance = balance
+        self.user = user
