@@ -37,6 +37,28 @@ def test_successful_login(client):
     assert len(data["refresh_token"]) > 0
     assert data.get("token_type") == "Bearer"
 
+def test_error_wrong_email(client):
+    create_user = {
+        "name": "TestName",
+        "email": "testemail@gmail.com",
+        "password": "TestPassword",
+        "active": True
+    }
+
+    response = client.post("/user/create-account", json=create_user)
+
+    login = {
+        "email": "estemail@gmail.com",
+        "password": "TestPassword"
+    }
+
+    response = client.post("/user/login", json=login)
+
+    assert response.status_code == 400
+    assert response.json() == {
+        "detail": "User not found or invalid credentials"
+    }
+
 def test_error_wrong_password(client):
     create_user = {
         "name": "TestName",
