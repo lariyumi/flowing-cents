@@ -65,3 +65,19 @@ async def edit_account(account_id: int, account_schema: AccountSchema, session: 
         return {
             "message": "Account successfully edited"
         }
+
+@account_router.delete("/delete/{account_id}")
+async def delete_account(account_id: int, session: Session = Depends(db_session), user: User = Depends(validate_token)):
+    account = session.query(Account).filter(Account.id == account_id).first()
+
+    if not account:
+        raise HTTPException(status_code=400, detail="Requested account doesn't exist")
+    elif user.id != account.user:
+        raise HTTPException(status_code=403, detail="You don't have permission to delete another user's account")
+    else:
+        session.delete(account)
+        session.commit()
+
+        return {
+            "message": "Account successfully deleted"
+        }
