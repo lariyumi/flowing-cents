@@ -14,7 +14,6 @@ def test_successful_user_creation(client: TestClient):
         "name": "TestName",
         "email": "testemail@gmail.com",
         "password": "TestPassword",
-        "active": True
     }
 
     response = client.post("/user/create-account", 
@@ -30,7 +29,6 @@ def test_error_no_name(client: TestClient):
         "name": "",
         "email": "testemail@gmail.com",
         "password": "TestPassword",
-        "active": True
     }
 
     response = client.post("/user/create-account", json=invalid_user)
@@ -47,7 +45,6 @@ def test_error_no_email(client: TestClient):
         "name": "TestName",
         "email": "",
         "password": "TestPassword",
-        "active": True
     }
 
     response = client.post("/user/create-account", json=invalid_user)
@@ -64,7 +61,6 @@ def test_error_existing_email(client: TestClient):
         "name": "TestName",
         "email": "testemail@gmail.com",
         "password": "TestPassword",
-        "active": True
     }
 
     response = client.post("/user/create-account", json=user)
@@ -81,7 +77,6 @@ def test_error_no_password(client: TestClient):
         "name": "TestName",
         "email": "testemail@gmail.com",
         "password": "",
-        "active": True
     }
 
     response = client.post("/user/create-account", json=user)

@@ -51,8 +51,7 @@ def auth_headers(session: Session, client: TestClient):
     user = {
         "name": "TestName",
         "email": "testemail@gmail.com",
-        "password": "TestPassword",
-        "active": True
+        "password": "TestPassword"
     }
     
     response = client.post("/user/create-account", json=user)

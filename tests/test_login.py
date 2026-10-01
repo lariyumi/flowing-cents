@@ -13,8 +13,7 @@ def test_successful_login(client: TestClient):
     create_user = {
         "name": "TestName",
         "email": "testemail@gmail.com",
-        "password": "TestPassword",
-        "active": True
+        "password": "TestPassword"
     }
 
     response = client.post("/user/create-account", json=create_user)
@@ -41,8 +40,7 @@ def test_error_wrong_email(client: TestClient):
     create_user = {
         "name": "TestName",
         "email": "testemail@gmail.com",
-        "password": "TestPassword",
-        "active": True
+        "password": "TestPassword"
     }
 
     response = client.post("/user/create-account", json=create_user)
@@ -63,8 +61,7 @@ def test_error_wrong_password(client: TestClient):
     create_user = {
         "name": "TestName",
         "email": "testemail@gmail.com",
-        "password": "TestPassword",
-        "active": True
+        "password": "TestPassword"
     }
 
     response = client.post("/user/create-account", json=create_user)
