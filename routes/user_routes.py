@@ -1,5 +1,6 @@
 import bcrypt
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from jose import jwt
 from datetime import datetime, timedelta, timezone
@@ -32,9 +33,9 @@ def create_token(user_id: int, token_duration=timedelta(minutes=ACCESS_TOKEN_EXP
 
     return encoded_jwt
 
-@user_router.post("/create-account")
+@user_router.post("/create-account", status_code=201)
 async def create_account(user_schema: UserSchema, session: Session = Depends(db_session)):
-    user = session.query(User).filter(User.email == user_schema.email).first()
+    user = session.query(User).filter(User.email == user_schema.email, User.active).first()
 
     if user:
         raise HTTPException(status_code=400, detail="Email already used by an existing user")
@@ -65,5 +66,19 @@ async def login(login_schema: LoginSchema, session: Session = Depends(db_session
         return {
             "access_token": access_token,
             "refresh_token": refresh_token,
+            "token_type": "Bearer"
+        }
+
+@user_router.post("/login/auth-form")
+async def login(form_data: OAuth2PasswordRequestForm = Depends(), session: Session = Depends(db_session)):
+    user = authenticate_user(form_data.username, form_data.password, session)
+
+    if not user:
+        raise HTTPException(status_code=400, detail="User not found or invalid credentials")
+    else:
+        access_token = create_token(user.id)
+
+        return {
+            "access_token": access_token,
             "token_type": "Bearer"
         }
