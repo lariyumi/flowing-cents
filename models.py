@@ -6,7 +6,7 @@ db = create_engine("sqlite:///database/database.db")
 
 Base = declarative_base()
 
-class TypeTransaction(enum.Enum):
+class TypeTransaction(str, enum.Enum):
     EXPENSE = "EXPENSE"
     INCOME = "INCOME"
 
@@ -39,12 +39,11 @@ class Account(Base):
         self.balance = balance
         self.user = user
 
-    def calculate_balance(self):
-        for transaction in self.transactions:
-            if transaction.type_transaction == "EXPENSE":
-                self.balance -= transaction.amount
-            else:
-                self.balance += transaction.amount
+    def calculate_balance(self, amount:float, op: str):
+        if op == "EXPENSE":
+            self.balance -= amount
+        else:
+            self.balance += amount
 
 class Transaction(Base):
     __tablename__ = "transactions"

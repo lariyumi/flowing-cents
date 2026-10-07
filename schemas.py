@@ -2,6 +2,7 @@ import enum
 from datetime import date
 from pydantic import BaseModel, Field, EmailStr
 from typing import Annotated
+from models import TypeTransaction
 
 class UserSchema(BaseModel):
     name: Annotated[str, Field(min_length=2)]
@@ -29,7 +30,8 @@ class AccountSchema(BaseModel):
 class TransactionSchema(BaseModel):
     amount: float
     date: date
-    type_transaction: enum.Enum
+    type_transaction: TypeTransaction
+    account: Annotated[int, Field(ge=0)]
 
     class Config:
         from_attributes = True
