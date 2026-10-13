@@ -31,7 +31,7 @@ async def all_transactions(session: Session = Depends(db_session), user: User = 
         "transactions": transactions
     }
 
-@transaction_router.post("/")
+@transaction_router.post("/", status_code=201)
 async def add_transaction(transaction_schema: TransactionSchema, session: Session = Depends(db_session), user: User = Depends(validate_token)):
     account = checking_account_user(transaction_schema.account, session, user)
     new_transaction = Transaction(transaction_schema.amount, transaction_schema.date, transaction_schema.type_transaction, transaction_schema.account)
