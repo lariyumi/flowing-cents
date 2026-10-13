@@ -85,3 +85,19 @@ async def edit_transaction(transaction_id: int, transaction_schema: TransactionS
     return {
         "message": "Transaction successfully edited"
     }
+
+@transaction_router.delete("/delete/{transaction_id}")
+async def delete_transaction(transaction_id: int, session: Session = Depends(db_session), user: User = Depends(validate_token)):
+    transaction = session.query(Transaction).filter(transaction_id == Transaction.id).first()
+
+    if not transaction:
+        raise HTTPException(status_code=400, detail="Specified transaction not found")
+
+    checking_account_user(transaction.account, session, user)
+
+    session.delete(transaction)
+    session.commit()
+
+    return {
+        "message": "Transaction successfully deleted"
+    }
