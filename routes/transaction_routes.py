@@ -93,8 +93,9 @@ async def delete_transaction(transaction_id: int, session: Session = Depends(db_
     if not transaction:
         raise HTTPException(status_code=400, detail="Specified transaction not found")
 
-    checking_account_user(transaction.account, session, user)
+    account = checking_account_user(transaction.account, session, user)
 
+    account.calculate_balance(-transaction.amount, transaction.type_transaction)
     session.delete(transaction)
     session.commit()
 
