@@ -1,5 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
+from datetime import date
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import StaticPool
@@ -11,8 +12,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from main import app
 from dependencies import db_session
-import models
-from models import Base
+from models import Base, TypeTransaction
 
 TEST_DATABASE_URL = "sqlite:///:memory:"
 
@@ -90,3 +90,15 @@ def create_account():
         
         return account 
     return _create_account
+
+@pytest.fixture(scope="function")
+def create_transaction():
+    def _create_transaction(amount: float = "200.00", date: date = date.today(), type_transaction: TypeTransaction = "EXPENSE", account: int = 1):
+        transaction = {
+            "amount": amount,
+            "date": date.isoformat(),
+            "type_transaction": type_transaction,
+            "account": account
+        }
+        return transaction
+    return _create_transaction
