@@ -75,3 +75,7 @@ class TransactionTag(Base):
     id = Column("id", Integer, primary_key=True, autoincrement=True)
     tag = Column("tag", ForeignKey("tags.id"))
     transaction = Column("transaction", ForeignKey("transactions.id"))
+
+    def __init__(self, tag, transaction):
+        self.tag = tag
+        self.transaction = transaction
