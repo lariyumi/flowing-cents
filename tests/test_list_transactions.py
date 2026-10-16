@@ -1,0 +1,28 @@
+from fastapi.testclient import TestClient
+
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from main import app
+
+client = TestClient(app)
+
+def test_successful_request(client: TestClient, auth_headers, create_user):
+    user = create_user()
+
+    client.post("/user/create-account", json=user)
+
+    response = client.get("/transaction", headers=auth_headers())
+
+    assert response.status_code == 200
+    assert "transactions" in response.json()
+
+def test_error_not_authenticated(client: TestClient):
+    response = client.get("/transaction")
+
+    assert response.status_code == 401
+
+    errors = response.json()["detail"]
+    assert "Not authenticated" in errors
