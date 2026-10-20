@@ -41,10 +41,10 @@ async def add_transaction(transaction_schema: TransactionSchema, tags_schema: Li
     account.calculate_balance(new_transaction.amount, new_transaction.type_transaction)
     
     for tag in tags_schema:
-        find_tag = session.query(Tag).filter(tag.name == Tag.name).first()
+        find_tag = session.query(Tag).filter(tag.name == Tag.name).filter(Tag.user == user.id).first()
 
         if not find_tag:
-            new_tag = Tag(tag.name)
+            new_tag = Tag(tag.name, user.id)
             session.add(new_tag)
             session.flush()
             
