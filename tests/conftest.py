@@ -4,6 +4,7 @@ from datetime import date
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import StaticPool
+from typing import List
 
 import sys
 import os
@@ -13,6 +14,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from main import app
 from dependencies import db_session
 from models import Base, TypeTransaction
+from schemas import TagSchema
 
 TEST_DATABASE_URL = "sqlite:///:memory:"
 
@@ -93,12 +95,14 @@ def create_account():
 
 @pytest.fixture(scope="function")
 def create_transaction():
-    def _create_transaction(amount: float = "200.00", date: date = date.today(), type_transaction: TypeTransaction = "EXPENSE", account: int = 1):
+    def _create_transaction(amount: float = "200.00", date: date = date.today(), type_transaction: TypeTransaction = "EXPENSE", account: int = 1, tags: List[TagSchema] = []):
         transaction = {
             "amount": amount,
             "date": date.isoformat(),
             "type_transaction": type_transaction,
-            "account": account
+            "account": account,
+            "tags": tags 
         }
+
         return transaction
     return _create_transaction

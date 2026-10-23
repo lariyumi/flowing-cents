@@ -33,14 +33,14 @@ async def all_transactions(session: Session = Depends(db_session), user: User = 
     }
 
 @transaction_router.post("/", status_code=201)
-async def add_transaction(transaction_schema: TransactionSchema, tags_schema: List[TagSchema], session: Session = Depends(db_session), user: User = Depends(validate_token)):
+async def add_transaction(transaction_schema: TransactionSchema, session: Session = Depends(db_session), user: User = Depends(validate_token)):
     account = checking_account_user(transaction_schema.account, session, user)
     new_transaction = Transaction(transaction_schema.amount, transaction_schema.date, transaction_schema.type_transaction, transaction_schema.account)
 
     session.add(new_transaction)
     account.calculate_balance(new_transaction.amount, new_transaction.type_transaction)
     
-    for tag in tags_schema:
+    for tag in transaction_schema.tags:
         find_tag = session.query(Tag).filter(tag.name == Tag.name).filter(Tag.user == user.id).first()
 
         if not find_tag:
