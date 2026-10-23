@@ -65,13 +65,19 @@ class Tag(Base):
 
     id = Column("id", Integer, primary_key=True, autoincrement=True)
     name = Column("name", String, nullable=False)
+    transactions = relationship("TransactionTag", cascade="all, delete")
+    user = Column("user", ForeignKey("users.id"))
 
-    def __init__(self, name):
+    def __init__(self, name, user):
         self.name = name
+        self.user = user
 
 class TransactionTag(Base):
     __tablename__ = "transaction_tag"
 
-    id = Column("id", Integer, primary_key=True, autoincrement=True)
-    tag = Column("tag", ForeignKey("tags.id"))
-    transaction = Column("transaction", ForeignKey("transactions.id"))
+    tag_id = Column("tag", ForeignKey("tags.id"), primary_key=True)
+    transaction_id = Column("transaction", ForeignKey("transactions.id"), primary_key=True)
+
+    def __init__(self, tag_id, transaction_id):
+        self.tag_id = tag_id
+        self.transaction_id = transaction_id

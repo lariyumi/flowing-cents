@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
+from typing import List
 
 import os
 import sys
@@ -7,8 +8,8 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from dependencies import db_session, validate_token
-from schemas import TransactionSchema
-from models import Transaction, Account, User
+from schemas import TransactionSchema, TagSchema
+from models import Transaction, Account, User, Tag, TransactionTag
 
 transaction_router = APIRouter(prefix="/transaction", tags=["transaction"], dependencies=[Depends(validate_token)])
 
@@ -32,11 +33,27 @@ async def all_transactions(session: Session = Depends(db_session), user: User = 
     }
 
 @transaction_router.post("/", status_code=201)
-async def add_transaction(transaction_schema: TransactionSchema, session: Session = Depends(db_session), user: User = Depends(validate_token)):
+async def add_transaction(transaction_schema: TransactionSchema, tags_schema: List[TagSchema], session: Session = Depends(db_session), user: User = Depends(validate_token)):
     account = checking_account_user(transaction_schema.account, session, user)
     new_transaction = Transaction(transaction_schema.amount, transaction_schema.date, transaction_schema.type_transaction, transaction_schema.account)
+
     session.add(new_transaction)
     account.calculate_balance(new_transaction.amount, new_transaction.type_transaction)
+    
+    for tag in tags_schema:
+        find_tag = session.query(Tag).filter(tag.name == Tag.name).filter(Tag.user == user.id).first()
+
+        if not find_tag:
+            new_tag = Tag(tag.name, user.id)
+            session.add(new_tag)
+            session.flush()
+            
+            new_transaction_tag = TransactionTag(new_tag.id, new_transaction.id)
+            session.add(new_transaction_tag)
+        else:
+            new_transaction_tag = TransactionTag(find_tag.id, new_transaction.id)
+            session.add(new_transaction_tag)
+
     session.commit()
 
     return {
