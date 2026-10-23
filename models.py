@@ -53,7 +53,6 @@ class Transaction(Base):
     date = Column("date", Date, nullable=False)
     type_transaction = Column("type_transaction", Enum(TypeTransaction), nullable=False)
     account = Column("account", ForeignKey("accounts.id"))
-    tags = relationship("TransactionTag", back_populates="transaction")
 
     def __init__(self, amount, date, type_transaction, account):
         self.amount = amount
@@ -66,7 +65,7 @@ class Tag(Base):
 
     id = Column("id", Integer, primary_key=True, autoincrement=True)
     name = Column("name", String, nullable=False)
-    transactions = relationship("TransactionTag", back_populates="tag")
+    transactions = relationship("TransactionTag", cascade="all, delete")
     user = Column("user", ForeignKey("users.id"))
 
     def __init__(self, name, user):
@@ -78,8 +77,6 @@ class TransactionTag(Base):
 
     tag_id = Column("tag", ForeignKey("tags.id"), primary_key=True)
     transaction_id = Column("transaction", ForeignKey("transactions.id"), primary_key=True)
-    transaction = relationship("Transaction", back_populates="tags")
-    tag = relationship("Tag", back_populates="transactions")
 
     def __init__(self, tag_id, transaction_id):
         self.tag_id = tag_id

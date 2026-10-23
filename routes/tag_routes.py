@@ -20,6 +20,16 @@ async def all_tags(session: Session = Depends(db_session), user: User = Depends(
         "tags": tags
     }
 
-# @tag_router.delete("/{tag_id}")
-# async def delete_tag(tag_id: int, session: Session = Depends(db_session)):
-#     tag = session.query(Tag).filter(tag_id == Tag.id).first()
+@tag_router.delete("/{tag_id}")
+async def delete_tag(tag_id: int, session: Session = Depends(db_session), user: User = Depends(validate_token)):
+    tag = session.query(Tag).filter(tag_id == Tag.id).filter(user.id == Tag.user).first()
+
+    if not tag:
+        raise HTTPException(status_code=400, detail="Tag not found")
+    else:
+        session.delete(tag)
+        session.commit()
+
+        return {
+            "message": "Tag successfully deleted"
+        }
