@@ -106,3 +106,14 @@ def create_transaction():
 
         return transaction
     return _create_transaction
+
+@pytest.fixture(scope="function")
+def create_tag():
+    def _create_tag(name: str = "Test", user: int = 1):
+        tag = {
+            "name": name,
+            "user": user
+        }
+
+        return tag
+    return _create_tag
